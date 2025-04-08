@@ -2,6 +2,11 @@ name: First Py Scraper
 
 on:
   workflow_dispatch:
+    inputs:
+      state:
+        description: 'US state to scrape'
+        required: true
+        default: 'ny'
   schedule:
   - cron: "0 0 * * *"
 
