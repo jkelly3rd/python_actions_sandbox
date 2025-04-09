@@ -1,0 +1,70 @@
+name: First Py Matrix Scraper
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    name: Scrape
+    runs-on: ubuntu-latest
+    continues-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        state: [ca,fl,tx,il]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install BLN Scraper
+        run: pip install warn-scraper
+        
+      - name: Scrape WARN data
+        run: warn-scraper ${{ matrix.state }} --data-dir ./data/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.state }}
+          path: ./data/${{ matrix.state }}.csv
+
+  commit:
+    name: Commit
+    runs-on: ubuntu-latest
+    needs: scrape
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          path: artifacts/
+
+      - name: Move The Data
+        run: |
+          mkdir data -p
+          mv artifacts/**/*.csv data/
+
+      - name: Datestamp
+        run: date > ./data/latest-scrape-date.txt
+      
+      - name: Commit and push
+        run: |
+          git config user.name "Github Actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add ./data/
+          git commit -m "Latest data" && git push || true
+
+
+          
+      
