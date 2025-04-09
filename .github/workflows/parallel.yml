@@ -10,7 +10,7 @@ jobs:
   scrape:
     name: Scrape
     runs-on: ubuntu-latest
-    continues-on-error: true
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
