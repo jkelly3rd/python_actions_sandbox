@@ -23,7 +23,7 @@ jobs:
         run: pip install warn-scraper
 
       - name: Scrape
-        run: warn-scraper ia --data-dir ./data/
+        run: warn-scraper ny --data-dir ./data/
 
       - name: Commit and push
         run: |
